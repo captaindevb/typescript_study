@@ -125,14 +125,74 @@ type CreateElement = {
 // type Filter = {
 //   <T>(array: T[], f: (item: T) => boolean): T[]
 // }
-type Filter<T> = {
-  (array: T[], f: (item: T) => boolean): T[]
-}
+// type Filter<T> = {
+//   (array: T[], f: (item: T) => boolean): T[]
+// }
 // let filter: Filter = (array, f) => {
 //   //Generic type 'Filter' requires 1 type argument(s).ts(2314)
 //   console.log("에러!")
 // }]
 
-let filter: Filter<Number> = (array, f) => {
+// type otherFilter = Filter
+//Generic type 'Filter' requires 1 type argument(s).
+
+// let filter: Filter<Number> = (array, f) => {
+//   return array
+// }
+
+// type StringFilter = Filter <string>
+// let stringFilter: StringFilter = (array, f) => {
+//   return array
+// }
+
+// let filter:Filter = (array, item) => {
+//   return array
+// }
+
+type Filter = {
+  //T의 범위를 개별 시그니처로 한정한 전체 호출 시그니처. 각각의 filter 호출은 자신만의 T 한정 값을 가진다.
+  <T>(array: T[], f: (item: T) => boolean): T[]
+}
+//위 코드의 단축 시그니처
+type FilterShort = <T>(array: T[], f: (item: T) => boolean) => T[]
+
+type Filter2<T> = {
+  //T의 범위를 모든 시그니처로 한정한 전체 호출 시그니처. filter 타입의 함수를 선언할 때 T를 한정한다.
+  (array: T[], f: (item: T) => boolean): T[]
+}
+type Filter2Short<T> = (array: T[], f: (item: T) => boolean) => T[]
+
+function filter<T>(array: T[], f: (item: T) => boolean): T[] {
+  //T를 시그니처 범위로 한정한, 이름을 갖는 함수 호출 시그니처. filter를 호출할 때 T를 타입으로 한정하므로 각 filter 호출은 자신만의 T한정값을 갖는다.
   return array
+}
+
+//두번째 예시 맵
+
+function map(array: unknown[], f: (item: unknown) => unknown): unknown[] {
+  let result = []
+  for (let i = 0; i < array.length; i++) {
+    result[i] = f(array[i])
+  }
+  return result
+}
+//문제, 위 코드를 어떻게 변환?
+//내가 쓴 코드
+function map2<T>(array: T[], f: (item: T) => T): T[] {
+  let result = []
+  for (let i = 0; i < array.length; i++) {
+    result[i] = f(array[i])
+  }
+  return result
+}
+
+//정답
+//인수 배열 멤버의 타입을 대변하는 T, 반환 배열 멤버 타입을 대변하는 U 이렇게 두가지 제네릭 타입이 필요.
+function map3<T, U>(array: T[], f: (item: T) => U): U[] {
+  //T타입의 요소를 포함하는 배열을 전단하면 매핑 함수가 T타입의 값을 가지고 U타입의 값으로 변환, 최종적으로 U타입의 항목을 포함하는 배열을 반환한다.
+  let result = []
+  for (let i = 0; i < array.length; i++) {
+    result[i] = f(array[i])
+  }
+  return result
 }
